@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+    
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+
+        <style>
+            .color-box {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin: 7px;
+                display: inline-block;
+            }
+
+            .clic{
+                cursor: pointer;
+            }
+
+            .quantity button{
+                border-radius: 50%;
+                display: inline-block;
+                width: 30px;
+            }
+            .quantity div{
+                text-align: center;
+                min-width: 30px;
+                display: inline-block;
+                font-weight: bold;
+            }
+            .buy-box{
+                margin: 20px;
+            }
+            footer {
+                
+                text-align: center;
+                padding: 30px 10px;
+                margin-top: 50px;
+                min-height: 100px;
+            }
+            .container{
+                margin-top: 50px;
+            }
+            .producto-relacionado-precio{
+                background: orangered;
+                color: white;
+                text-align: center;
+                padding: 10px;
+            }
+            .contenedor {
+                display: flex;
+                flex-direction: row;
+            }
+        </style>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-lg" :style="{ backgroundColor: configuracionPagina.menuColor }">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#" v-html="configuracionPagina.marca"> </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item" v-for="menu in configuracionPagina.menus" :key="menu.etiqueta">
+                            <a class="nav-link" aria-current="page" :href="menu.url">{{ menu.etiqueta }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    
+        <div class="container">
+    
+            <div class="row">
+                <h3 v-html="producto.nombre"></h3>
+            </div>
+            <div class="row">
+                <div class="col-12 col-sm-6 col-md-4 ">
+                    <img :src="producto.imagen"
+                        alt="" width="100%">
+                </div>
+                <div class="col-12 col-sm-6  col-md-8">
+                    <h6 v-html="producto.descripcion"></h6>
+                    <div class="p-3 mb-2 text-white" :style="configuracionPagina.precioEstilos" v-html="producto.precio">
+                    </div>
+                    <h5>Color</h5>
+                    <div class="row">
+                        <div class="color-box" v-for="items in producto.colores">
+                          <div class="color-box clic" v-on:click="pedido.color=items" :style="{background: active ? items:'green'}"></div>
+                        </div>
+                      </div>
+                      <h5 v-if="pedido.color!=null">Color {{pedido.color}}</h5>
+                    <h5>Cantidad</h5>
+                    <div class="quantity">
+                        <template>
+                            <button v-on:click="pedido.cantidad -=1" :disabled="pedido.cantidad<=0">-</button>
+                            <div v-if="pedido.cantidad>=0">{{pedido.cantidad}}</div>
+                            <div v-else>0</div>
+                          </template>
+                          <button v-on:click="pedido.cantidad +=1">+</button>
+                    </div>
+                    <div class="buy-box">
+                        <button type="button" class="btn btn-primary" :disabled="pedido.cantidad<=0" v-on:click="comprarAlgo()"
+              >
+                Comprar
+              </button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+    
+    
+        <div class="container ">
+    
+            <div class="row">
+                <h4>Productos relacionados</h4>
+            </div>
+
+
+            <div class="row">
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title" v-html="productosRelacionados[0].nombre"></h5>
+                            <img :src="productosRelacionados[0].imagen"
+                        alt="" width="100%">
+                            <p class="card-text" v-html="productosRelacionados[0].descripcion"></p>
+                                <div class="producto-relacionado-precio" v-html="productosRelacionados[0].precio"></div>
+                            <div>
+                    <div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[0].colores[0]}"></div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[0].colores[1]}"></div>
+                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title" v-html="productosRelacionados[1].nombre"></h5>
+                            <img :src="productosRelacionados[1].imagen"
+                        alt="" width="100%">
+                            <p class="card-text" v-html="productosRelacionados[1].descripcion"></p>
+                                <div class="producto-relacionado-precio" v-html="productosRelacionados[1].precio"></div>
+                            <div>
+                    <div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[1].colores[0]}"></div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[1].colores[1]}"></div>
+                    </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title" v-html="productosRelacionados[2].nombre"></h5>
+                            <img :src="productosRelacionados[2].imagen"
+                        alt="" width="100%">
+                            <p class="card-text" v-html="productosRelacionados[2].descripcion"></p>
+                                <div class="producto-relacionado-precio" v-html="productosRelacionados[2].precio"></div>
+                            <div>
+                    <div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[2].colores[0]}"></div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[2].colores[1]}"></div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[2].colores[2]}"></div>
+                        <div class="color-box" :style="{ backgroundColor: productosRelacionados[2].colores[3]}"></div>
+                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <footer :style="{ backgroundColor: configuracionPagina.footerColor }">
+            
+        </footer>
+    </div>
+    
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                configuracionPagina: {
+                    marca: "MegaDron",
+                    menuColor: "lightblue",
+                    footerColor: "slategrey",
+                    precioEstilos: "background: orangered; color: white; font-weight: bold",
+                    menus: [
+                            {
+                            etiqueta: "Inicio",
+                            url: "?"
+                            },
+                            {
+                            etiqueta: "Tienda",
+                            url: "?"
+                            }
+                            ]
+                },
+                producto:
+                    {
+                    id:1,
+                    imagen: "https://www.cu-reduceri.ro/images/vouchers/4922/1414.png",
+                    nombre: "Dron LU3 MAX GPS 8K HD",
+                    descripcion: "Dron LU3 MAX GPS 8K HD profesional con <b>cámara Dual</b>, cardán autoestabilizador, Motor sin escobillas para evitar obstáculos, cuadricóptero plegable",
+                    precio:"Precio: 620 BOB",
+                    colores: ["red", "blue", "black", "yellow"]
+                    },
+                productosRelacionados:
+                    [
+                    {
+                    id:2,
+                    imagen: "https://cdn.shopify.com/s/files/1/0626/0640/9944/files/kf102-drone-with-8k-camera-upgraderc-kfplan-1_700x700.jpg?v=1688106773",
+                    nombre: "KF102",
+                    descripcion: "Dron plegable KF102 con Gps, 8K, cámara Dual HD, 2 ejes,cardán, Motor sin escobillas, fotografía aérea, 1200M de distancia, novedad de 2022",
+                    precio:" Precio: 1180 BOB",
+                    colores: ["orange", "blue"]
+                    },
+                    {
+                    id:3,
+                    imagen: "https://img.joomcdn.net/b8b5db95a5541d43fb13999480b585d8c22c146d_original.jpeg",
+                    nombre: "KBDFA-Dron E888 RC",
+                    descripcion: "KBDFA-Dron E888 RC, cuadricóptero profesional FPV, 4K HD,fotografía aérea, evitación de obstáculos, helicóptero, juguetes de distancia",
+                    precio:"Precio: 154 BOB",
+                    colores: ["black", "midnightblue"]
+                    },
+                    {
+                    id:4,
+                    imagen: "https://lzd-img-global.slatic.net/g/p/797df240cb2af5869bcc1168d9b902c8.jpg_1200x1200q80.jpg_.webp",
+                    nombre: "Dron Profesional 4K con GPS",
+                    descripcion: "Dron Profesional 4K con GPS, 8K, cámara HD, 3 ejes, cardánantivibración, evitación de obstáculos, fotografía aérea, Quadcopter, nuevo",
+                    precio:"Precio: 1800 BOB",
+                    colores: ["teal", "blue", "slategrey", "navy"]
+                    }
+                    ],
+        active: true,
+          pedido: {
+            id: null,
+            cantidad: 0,
+            color: null,
+          },
+        },
+        methods: {
+          comprarAlgo() {
+            if(this.pedido.color!=null){
+                this.pedido.id=this.producto.id
+                alert('Producto: '+this.pedido.id+'\nCantidad: '+this.pedido.cantidad+'\nColor seleccionado: '+this.pedido.color)
+            }
+          },
+            },
+        });
+    </script>
+</body>
+
+</html>
